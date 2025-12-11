@@ -28,6 +28,9 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     final swipeState = ref.watch(swipeNotifierProvider);
     final variant = ref.watch(themeVariantProvider);
     final primaryColor = getThemePrimaryColor(variant);
+    final texts = getSwipeScreenTexts(variant);
+    final appBarStyle = getAppBarStyle(variant);
+    final cardPadding = getCardPadding(variant);
 
     // Show match dialog when there's a new match
     ref.listen<SwipeState>(swipeNotifierProvider, (previous, next) {
@@ -49,71 +52,31 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     if (swipeState.isLoading && swipeState.candidates.isEmpty) {
       return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(color: primaryColor),
+          child: _buildLoadingIndicator(variant, primaryColor),
         ),
       );
     }
 
     if (swipeState.candidates.isEmpty) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text(_getTitleForVariant(variant)),
-          centerTitle: true,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _getEmptyIconForVariant(variant),
-                size: 80,
-                color: primaryColor.withValues(alpha: 0.5),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                _getEmptyTitleForVariant(variant),
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _getEmptySubtitleForVariant(variant),
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodyMedium?.color,
-                ),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(swipeNotifierProvider.notifier).loadCandidates();
-                },
-                child: Text(_getRefreshTextForVariant(variant)),
-              ),
-            ],
-          ),
-        ),
+        appBar: _buildAppBar(context, variant, texts.title, appBarStyle),
+        body: _buildEmptyState(context, variant, texts, primaryColor, ref),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitleForVariant(variant)),
-        centerTitle: true,
-      ),
+      appBar: _buildAppBar(context, variant, texts.title, appBarStyle),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: cardPadding,
                 child: CardSwiper(
                   controller: _controller,
                   cardsCount: swipeState.candidates.length,
                   numberOfCardsDisplayed: swipeState.candidates.length > 1 ? 2 : 1,
-                  backCardOffset: const Offset(0, 40),
+                  backCardOffset: _getBackCardOffset(variant),
                   padding: EdgeInsets.zero,
                   onSwipe: (previousIndex, currentIndex, direction) {
                     final profile = swipeState.candidates[previousIndex];
@@ -135,102 +98,348 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                 ),
               ),
             ),
-            _buildActionButtons(context, variant),
+            _buildActionButtons(context, variant, texts),
           ],
         ),
       ),
     );
   }
 
-  String _getTitleForVariant(AppThemeVariant variant) {
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    AppThemeVariant variant,
+    String title,
+    AppBarStyle style,
+  ) {
     switch (variant) {
       case AppThemeVariant.v3DarkNeon:
-        return 'SCAN';
+        return AppBar(
+          title: Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF00FF00),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF00FF00),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: 'monospace',
+                  letterSpacing: 4,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          centerTitle: false,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        );
       case AppThemeVariant.v5LuxuryGoldBlack:
-        return 'CURATED';
+        return AppBar(
+          title: Text(
+            title,
+            style: const TextStyle(
+              letterSpacing: 6,
+              fontWeight: FontWeight.w200,
+              fontSize: 16,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        );
       case AppThemeVariant.v6PlayfulPastel:
-        return 'Find Friends! 💫';
+        return AppBar(
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFFF6B9D),
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        );
       case AppThemeVariant.v7HighContrastRed:
-        return 'SWIPE!';
-      case AppThemeVariant.v8BlueCorporate:
-        return 'Connect';
+        return AppBar(
+          title: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 4,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        );
       default:
-        return 'Discover';
+        return AppBar(
+          title: Text(
+            title,
+            style: style.titleStyle,
+          ),
+          centerTitle: style.centerTitle,
+          elevation: style.elevation,
+        );
     }
   }
 
-  IconData _getEmptyIconForVariant(AppThemeVariant variant) {
+  Widget _buildLoadingIndicator(AppThemeVariant variant, Color primaryColor) {
     switch (variant) {
       case AppThemeVariant.v3DarkNeon:
-        return Icons.wifi_tethering_off;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(
+                color: primaryColor,
+                strokeWidth: 2,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'SCANNING...',
+              style: TextStyle(
+                color: Color(0xFF00FFFF),
+                fontSize: 14,
+                letterSpacing: 4,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ],
+        );
       case AppThemeVariant.v6PlayfulPastel:
-        return Icons.sentiment_dissatisfied;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 60,
+              height: 60,
+              child: CircularProgressIndicator(
+                color: primaryColor,
+                strokeWidth: 4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Finding friends... 💫',
+              style: TextStyle(
+                color: Color(0xFFFF6B9D),
+                fontSize: 16,
+              ),
+            ),
+          ],
+        );
       default:
-        return Icons.search_off;
+        return CircularProgressIndicator(color: primaryColor);
     }
   }
 
-  String _getEmptyTitleForVariant(AppThemeVariant variant) {
+  Widget _buildEmptyState(
+    BuildContext context,
+    AppThemeVariant variant,
+    SwipeScreenTexts texts,
+    Color primaryColor,
+    WidgetRef ref,
+  ) {
+    final icon = getEmptyStateIcon(variant);
+    final isDark = isThemeDark(variant);
+
     switch (variant) {
       case AppThemeVariant.v3DarkNeon:
-        return 'NO SIGNAL';
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFF00FFFF), width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF00FFFF).withValues(alpha: 0.3),
+                      blurRadius: 20,
+                    ),
+                  ],
+                ),
+                child: Icon(icon, size: 60, color: const Color(0xFF00FFFF)),
+              ),
+              const SizedBox(height: 30),
+              Text(
+                texts.emptyTitle,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF00FFFF),
+                  letterSpacing: 4,
+                  fontFamily: 'monospace',
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                texts.emptySubtitle,
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  letterSpacing: 2,
+                  fontFamily: 'monospace',
+                ),
+              ),
+              const SizedBox(height: 40),
+              GestureDetector(
+                onTap: () => ref.read(swipeNotifierProvider.notifier).loadCandidates(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFFFF00FF), width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFF00FF).withValues(alpha: 0.4),
+                        blurRadius: 15,
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    texts.refreshText,
+                    style: const TextStyle(
+                      color: Color(0xFFFF00FF),
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 3,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      case AppThemeVariant.v6PlayfulPastel:
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF6B9D).withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, size: 60, color: const Color(0xFFFF6B9D)),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                texts.emptyTitle,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFFF6B9D),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                texts.emptySubtitle,
+                style: TextStyle(color: Colors.grey[500]),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () => ref.read(swipeNotifierProvider.notifier).loadCandidates(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF6B9D),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(texts.refreshText),
+              ),
+            ],
+          ),
+        );
+      default:
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 80,
+                color: primaryColor.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                texts.emptyTitle,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                texts.emptySubtitle,
+                style: TextStyle(
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: () => ref.read(swipeNotifierProvider.notifier).loadCandidates(),
+                child: Text(texts.refreshText),
+              ),
+            ],
+          ),
+        );
+    }
+  }
+
+  Offset _getBackCardOffset(AppThemeVariant variant) {
+    switch (variant) {
+      case AppThemeVariant.v2ModernGlassblur:
+        return const Offset(0, 50);
+      case AppThemeVariant.v4MinimalSoft:
+        return const Offset(0, 20);
+      case AppThemeVariant.v10CardStack3D:
+        return const Offset(0, 60);
+      default:
+        return const Offset(0, 40);
+    }
+  }
+
+  Widget _buildActionButtons(BuildContext context, AppThemeVariant variant, SwipeScreenTexts texts) {
+    switch (variant) {
+      case AppThemeVariant.v3DarkNeon:
+        return _buildNeonButtons(context, texts);
       case AppThemeVariant.v5LuxuryGoldBlack:
-        return 'No Selections Available';
+        return _buildLuxuryButtons(context, texts);
       case AppThemeVariant.v6PlayfulPastel:
-        return 'No one here yet 😢';
-      default:
-        return 'No more profiles';
-    }
-  }
-
-  String _getEmptySubtitleForVariant(AppThemeVariant variant) {
-    switch (variant) {
-      case AppThemeVariant.v3DarkNeon:
-        return 'Scanning for new connections...';
-      case AppThemeVariant.v5LuxuryGoldBlack:
-        return 'Our curators are finding matches for you';
-      case AppThemeVariant.v6PlayfulPastel:
-        return 'Come back later for more friends!';
-      default:
-        return 'Check back later for new people';
-    }
-  }
-
-  String _getRefreshTextForVariant(AppThemeVariant variant) {
-    switch (variant) {
-      case AppThemeVariant.v3DarkNeon:
-        return 'RESCAN';
-      case AppThemeVariant.v5LuxuryGoldBlack:
-        return 'REFRESH';
-      case AppThemeVariant.v6PlayfulPastel:
-        return 'Try Again! 🔄';
-      default:
-        return 'Refresh';
-    }
-  }
-
-  Widget _buildActionButtons(BuildContext context, AppThemeVariant variant) {
-    final primaryColor = getThemePrimaryColor(variant);
-    final buttonRadius = getButtonBorderRadius(variant);
-
-    // Different button layouts per variant
-    switch (variant) {
-      case AppThemeVariant.v3DarkNeon:
-        return _buildNeonButtons(context, primaryColor);
-      case AppThemeVariant.v5LuxuryGoldBlack:
-        return _buildLuxuryButtons(context);
-      case AppThemeVariant.v6PlayfulPastel:
-        return _buildPastelButtons(context);
+        return _buildPastelButtons(context, texts);
       case AppThemeVariant.v7HighContrastRed:
-        return _buildBoldButtons(context);
+        return _buildBoldButtons(context, texts);
       case AppThemeVariant.v9RoundedBubbles:
-        return _buildBubbleButtons(context, primaryColor);
+        return _buildBubbleButtons(context, texts);
       default:
-        return _buildDefaultButtons(context, primaryColor, buttonRadius);
+        return _buildDefaultButtons(context, variant, texts);
     }
   }
 
-  Widget _buildDefaultButtons(BuildContext context, Color primaryColor, double radius) {
+  Widget _buildDefaultButtons(BuildContext context, AppThemeVariant variant, SwipeScreenTexts texts) {
+    final primaryColor = getThemePrimaryColor(variant);
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
@@ -257,7 +466,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     );
   }
 
-  Widget _buildNeonButtons(BuildContext context, Color primaryColor) {
+  Widget _buildNeonButtons(BuildContext context, SwipeScreenTexts texts) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
@@ -266,20 +475,20 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
           _NeonButton(
             icon: Icons.close,
             color: const Color(0xFFFF00FF),
-            label: 'SKIP',
+            label: texts.nopeText.replaceAll(' ', ''),
             onPressed: () => _controller.swipe(CardSwiperDirection.left),
           ),
           _NeonButton(
             icon: Icons.favorite,
             color: const Color(0xFF00FFFF),
-            label: 'MATCH',
+            label: texts.likeText.replaceAll(' ', ''),
             size: 72,
             onPressed: () => _controller.swipe(CardSwiperDirection.right),
           ),
           _NeonButton(
             icon: Icons.bolt,
             color: const Color(0xFFFFFF00),
-            label: 'BOOST',
+            label: texts.superLikeText.replaceAll(' ', ''),
             onPressed: () => _controller.swipe(CardSwiperDirection.top),
           ),
         ],
@@ -287,7 +496,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     );
   }
 
-  Widget _buildLuxuryButtons(BuildContext context) {
+  Widget _buildLuxuryButtons(BuildContext context, SwipeScreenTexts texts) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
@@ -295,19 +504,19 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
         children: [
           _LuxuryButton(
             icon: Icons.close,
-            label: 'PASS',
+            label: texts.nopeText,
             onPressed: () => _controller.swipe(CardSwiperDirection.left),
           ),
           _LuxuryButton(
             icon: Icons.diamond,
-            label: 'SELECT',
+            label: texts.likeText,
             isPrimary: true,
             size: 72,
             onPressed: () => _controller.swipe(CardSwiperDirection.right),
           ),
           _LuxuryButton(
             icon: Icons.star,
-            label: 'VIP',
+            label: texts.superLikeText,
             onPressed: () => _controller.swipe(CardSwiperDirection.top),
           ),
         ],
@@ -315,7 +524,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     );
   }
 
-  Widget _buildPastelButtons(BuildContext context) {
+  Widget _buildPastelButtons(BuildContext context, SwipeScreenTexts texts) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
@@ -342,7 +551,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     );
   }
 
-  Widget _buildBoldButtons(BuildContext context) {
+  Widget _buildBoldButtons(BuildContext context, SwipeScreenTexts texts) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
@@ -372,7 +581,8 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     );
   }
 
-  Widget _buildBubbleButtons(BuildContext context, Color primaryColor) {
+  Widget _buildBubbleButtons(BuildContext context, SwipeScreenTexts texts) {
+    const primaryColor = Color(0xFF00CEC9);
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Row(
@@ -478,12 +688,12 @@ class _NeonButton extends StatelessWidget {
             ),
             child: Icon(icon, color: color, size: size * 0.5),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             label,
             style: TextStyle(
               color: color,
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: FontWeight.bold,
               letterSpacing: 2,
             ),
@@ -512,7 +722,7 @@ class _LuxuryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final goldColor = const Color(0xFFD4AF37);
+    const goldColor = Color(0xFFD4AF37);
     return GestureDetector(
       onTap: onPressed,
       child: Column(
@@ -536,7 +746,7 @@ class _LuxuryButton extends StatelessWidget {
             label,
             style: TextStyle(
               color: goldColor,
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: FontWeight.w300,
               letterSpacing: 3,
             ),
@@ -572,6 +782,13 @@ class _PastelButton extends StatelessWidget {
           color: color.withValues(alpha: 0.3),
           shape: BoxShape.circle,
           border: Border.all(color: color, width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Center(
           child: Text(
