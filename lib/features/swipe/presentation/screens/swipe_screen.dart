@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_theme.dart';
 import '../../providers/swipe_provider.dart';
 import '../widgets/swipe_card.dart';
 import '../widgets/match_dialog.dart';
@@ -45,9 +44,9 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     });
 
     if (swipeState.isLoading && swipeState.candidates.isEmpty) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+          child: CircularProgressIndicator(color: Theme.of(context).primaryColor),
         ),
       );
     }
@@ -145,7 +144,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                   ),
                   _ActionButton(
                     icon: Icons.favorite,
-                    color: AppTheme.primaryColor,
+                    color: Theme.of(context).primaryColor,
                     size: 72,
                     onPressed: () => _controller.swipe(CardSwiperDirection.right),
                   ),
@@ -185,7 +184,7 @@ class _ActionButton extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: AppTheme.surfaceColor,
+          color: Theme.of(context).colorScheme.surface,
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(

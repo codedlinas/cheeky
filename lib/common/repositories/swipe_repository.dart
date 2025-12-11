@@ -26,29 +26,36 @@ class SwipeRepository {
         .eq('user_id', userId)
         .maybeSingle();
 
-    if (myProfileResponse == null) return [];
-
-    final myProfile = Profile.fromJson(myProfileResponse);
-
     // Get IDs of users already swiped
-    final swipedResponse = await _client
-        .from('swipes')
-        .select('target_id')
-        .eq('swiper_id', userId);
+    List<String> swipedIds = [];
+    try {
+      final swipedResponse = await _client
+          .from('swipes')
+          .select('target_id')
+          .eq('swiper_id', userId);
 
-    final swipedIds = (swipedResponse as List)
-        .map((s) => s['target_id'] as String)
-        .toList();
+      swipedIds = (swipedResponse as List)
+          .map((s) => s['target_id'] as String)
+          .toList();
+    } catch (e) {
+      // Ignore swipes errors for now
+    }
     swipedIds.add(userId); // Exclude self
 
-    // Get candidates matching preferences
-    var query = _client
-        .from('profiles')
-        .select()
-        .eq('gender', myProfile.interestedIn);
+    // Get all profiles (show all for testing, can filter by preference later)
+    var query = _client.from('profiles').select();
 
+    // If user has profile, optionally filter by preference
+    if (myProfileResponse != null) {
+      final myProfile = Profile.fromJson(myProfileResponse);
+      query = _client
+          .from('profiles')
+          .select()
+          .eq('gender', myProfile.interestedIn);
+    }
+
+    // Filter out already swiped profiles and self
     if (swipedIds.isNotEmpty) {
-      // Filter out already swiped profiles
       query = query.not('user_id', 'in', swipedIds);
     }
 
