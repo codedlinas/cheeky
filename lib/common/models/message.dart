@@ -15,11 +15,13 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['id'] as String,
-      conversationId: json['conversation_id'] as String,
-      senderId: json['sender_id'] as String,
-      content: json['content'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      id: json['id']?.toString() ?? '',
+      conversationId: json['conversation_id']?.toString() ?? '',
+      senderId: json['sender_id']?.toString() ?? '',
+      content: json['content']?.toString() ?? '',
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 
@@ -33,4 +35,3 @@ class Message {
     };
   }
 }
-

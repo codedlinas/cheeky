@@ -25,17 +25,19 @@ class Profile {
 
   factory Profile.fromJson(Map<String, dynamic> json) {
     return Profile(
-      id: json['id'] as String,
-      userId: json['user_id'] as String,
-      displayName: json['display_name'] as String,
-      bio: json['bio'] as String?,
-      gender: json['gender'] as String,
-      interestedIn: json['interested_in'] as String,
-      age: json['age'] as int,
-      photoUrl: json['photo_url'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      id: json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      displayName: json['display_name']?.toString() ?? 'Unknown',
+      bio: json['bio']?.toString(),
+      gender: json['gender']?.toString() ?? 'other',
+      interestedIn: json['interested_in']?.toString() ?? 'other',
+      age: json['age'] is int ? json['age'] : int.tryParse(json['age']?.toString() ?? '0') ?? 0,
+      photoUrl: json['photo_url']?.toString(),
+      createdAt: json['created_at'] != null 
+          ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+          ? DateTime.tryParse(json['updated_at'].toString())
           : null,
     );
   }
@@ -81,4 +83,3 @@ class Profile {
     );
   }
 }
-

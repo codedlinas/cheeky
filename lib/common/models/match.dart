@@ -17,10 +17,12 @@ class Match {
 
   factory Match.fromJson(Map<String, dynamic> json, {Profile? otherUser}) {
     return Match(
-      id: json['id'] as String,
-      userA: json['user_a'] as String,
-      userB: json['user_b'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      id: json['id']?.toString() ?? '',
+      userA: json['user_a']?.toString() ?? '',
+      userB: json['user_b']?.toString() ?? '',
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
       otherUser: otherUser,
     );
   }
@@ -50,4 +52,3 @@ class Match {
     );
   }
 }
-
