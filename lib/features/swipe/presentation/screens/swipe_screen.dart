@@ -323,12 +323,12 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                                 ),
                                 const Spacer(),
                                 
-                                // ACTION BUTTONS - FIXED!
+                                // ACTION BUTTONS
                                 _buildCyberpunkButton(
                                   label: 'CONNECT',
                                   color: const Color(0xFF00FFFF),
                                   onPressed: () {
-                                    // Trigger like swipe
+                                    if (swipeState.candidates.isEmpty) return;
                                     final profile = swipeState.candidates[0];
                                     ref.read(swipeNotifierProvider.notifier).swipe(
                                       targetUserId: profile.userId,
@@ -341,7 +341,7 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
                                   label: 'REJECT',
                                   color: const Color(0xFFFF00FF),
                                   onPressed: () {
-                                    // Trigger dislike swipe
+                                    if (swipeState.candidates.isEmpty) return;
                                     final profile = swipeState.candidates[0];
                                     ref.read(swipeNotifierProvider.notifier).swipe(
                                       targetUserId: profile.userId,
@@ -457,31 +457,37 @@ class _SwipeScreenState extends ConsumerState<SwipeScreen> {
     required Color color,
     required VoidCallback onPressed,
   }) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          border: Border.all(color: color, width: 2),
-          borderRadius: BorderRadius.circular(4),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha: 0.4),
-              blurRadius: 12,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            '[ $label ]',
-            style: TextStyle(
-              color: color,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 3,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(4),
+        splashColor: color.withValues(alpha: 0.3),
+        highlightColor: color.withValues(alpha: 0.1),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            border: Border.all(color: color, width: 2),
+            borderRadius: BorderRadius.circular(4),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.4),
+                blurRadius: 12,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              '[ $label ]',
+              style: TextStyle(
+                color: color,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 3,
+              ),
             ),
           ),
         ),
