@@ -106,32 +106,6 @@ Color getThemeSecondaryColor(AppThemeVariant variant) {
   }
 }
 
-/// Get tertiary/accent color for each theme
-Color getThemeTertiaryColor(AppThemeVariant variant) {
-  switch (variant) {
-    case AppThemeVariant.v1ClassicTinder:
-      return const Color(0xFFFFA500); // Orange
-    case AppThemeVariant.v2ModernGlassblur:
-      return const Color(0xFF06B6D4); // Cyan
-    case AppThemeVariant.v3DarkNeon:
-      return const Color(0xFF00FF00); // Green neon
-    case AppThemeVariant.v4MinimalSoft:
-      return const Color(0xFFB2BEC3);
-    case AppThemeVariant.v5LuxuryGoldBlack:
-      return const Color(0xFFCDAA7D); // Bronze
-    case AppThemeVariant.v6PlayfulPastel:
-      return const Color(0xFF74B9FF); // Light blue
-    case AppThemeVariant.v7HighContrastRed:
-      return const Color(0xFF000000);
-    case AppThemeVariant.v8BlueCorporate:
-      return const Color(0xFF7FBA00); // Green
-    case AppThemeVariant.v9RoundedBubbles:
-      return const Color(0xFFFDCB6E); // Yellow
-    case AppThemeVariant.v10CardStack3D:
-      return const Color(0xFF06B6D4);
-  }
-}
-
 /// Get background color for each theme
 Color getThemeBackgroundColor(AppThemeVariant variant) {
   switch (variant) {
@@ -202,29 +176,29 @@ bool isThemeDark(AppThemeVariant variant) {
   }
 }
 
-/// Get card border radius - more variety!
+/// Get card border radius
 double getCardBorderRadius(AppThemeVariant variant) {
   switch (variant) {
     case AppThemeVariant.v1ClassicTinder:
       return 16;
     case AppThemeVariant.v2ModernGlassblur:
-      return 28; // Smoother, larger
+      return 24;
     case AppThemeVariant.v3DarkNeon:
-      return 2; // Almost sharp, cyber edges
+      return 4; // Sharp edges
     case AppThemeVariant.v4MinimalSoft:
-      return 6; // Subtle
+      return 8;
     case AppThemeVariant.v5LuxuryGoldBlack:
       return 0; // No radius - sharp luxury
     case AppThemeVariant.v6PlayfulPastel:
-      return 40; // Very rounded, playful
+      return 32; // Very rounded
     case AppThemeVariant.v7HighContrastRed:
-      return 0; // Sharp aggressive
+      return 0; // Sharp
     case AppThemeVariant.v8BlueCorporate:
-      return 4; // Corporate subtle
+      return 4;
     case AppThemeVariant.v9RoundedBubbles:
-      return 60; // Super bubble
+      return 50; // Super round
     case AppThemeVariant.v10CardStack3D:
-      return 24;
+      return 20;
   }
 }
 
@@ -254,233 +228,30 @@ double getButtonBorderRadius(AppThemeVariant variant) {
   }
 }
 
-/// Get app bar style configuration
-AppBarStyle getAppBarStyle(AppThemeVariant variant) {
+/// Get special border for variant (neon glow, gold border, etc)
+BoxDecoration? getSpecialCardDecoration(AppThemeVariant variant) {
   switch (variant) {
-    case AppThemeVariant.v1ClassicTinder:
-      return AppBarStyle(
-        centerTitle: true,
-        elevation: 0,
-        titleStyle: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-      );
-    case AppThemeVariant.v2ModernGlassblur:
-      return AppBarStyle(
-        centerTitle: true,
-        elevation: 0,
-        isTransparent: true,
-        titleStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w300, letterSpacing: 2),
-      );
     case AppThemeVariant.v3DarkNeon:
-      return AppBarStyle(
-        centerTitle: false,
-        elevation: 0,
-        titleStyle: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 4,
-          fontFamily: 'monospace',
-        ),
-      );
-    case AppThemeVariant.v4MinimalSoft:
-      return AppBarStyle(
-        centerTitle: false,
-        elevation: 0,
-        titleStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w200),
+      return BoxDecoration(
+        border: Border.all(color: const Color(0xFF00FFFF), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00FFFF).withValues(alpha: 0.5),
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
+        ],
       );
     case AppThemeVariant.v5LuxuryGoldBlack:
-      return AppBarStyle(
-        centerTitle: true,
-        elevation: 0,
-        titleStyle: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w300,
-          letterSpacing: 6,
-        ),
-      );
-    case AppThemeVariant.v6PlayfulPastel:
-      return AppBarStyle(
-        centerTitle: true,
-        elevation: 0,
-        titleStyle: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      return BoxDecoration(
+        border: Border.all(color: const Color(0xFFD4AF37), width: 1),
       );
     case AppThemeVariant.v7HighContrastRed:
-      return AppBarStyle(
-        centerTitle: true,
-        elevation: 0,
-        titleStyle: const TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 2,
-        ),
+      return BoxDecoration(
+        border: Border.all(color: Colors.red, width: 3),
       );
-    case AppThemeVariant.v8BlueCorporate:
-      return AppBarStyle(
-        centerTitle: false,
-        elevation: 2,
-        titleStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-      );
-    case AppThemeVariant.v9RoundedBubbles:
-      return AppBarStyle(
-        centerTitle: true,
-        elevation: 0,
-        titleStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-      );
-    case AppThemeVariant.v10CardStack3D:
-      return AppBarStyle(
-        centerTitle: true,
-        elevation: 0,
-        titleStyle: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
-        ),
-      );
-  }
-}
-
-/// Get navigation bar style
-NavBarStyle getNavBarStyle(AppThemeVariant variant) {
-  final primary = getThemePrimaryColor(variant);
-  final secondary = getThemeSecondaryColor(variant);
-  final tertiary = getThemeTertiaryColor(variant);
-  final isDark = isThemeDark(variant);
-  
-  switch (variant) {
-    case AppThemeVariant.v1ClassicTinder:
-      return NavBarStyle(
-        showLabels: true,
-        iconSize: 26,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.grey,
-        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        indicatorType: NavIndicatorType.none,
-      );
-    case AppThemeVariant.v2ModernGlassblur:
-      return NavBarStyle(
-        showLabels: false,
-        iconSize: 28,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.white38,
-        backgroundColor: Colors.white.withValues(alpha: 0.1),
-        indicatorType: NavIndicatorType.dot,
-        isFloating: true,
-        borderRadius: 30,
-      );
-    case AppThemeVariant.v3DarkNeon:
-      return NavBarStyle(
-        showLabels: true,
-        iconSize: 24,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.grey[700]!,
-        backgroundColor: Colors.black,
-        indicatorType: NavIndicatorType.glow,
-        glowColor: primary,
-        useCustomIcons: true,
-        customActiveIcons: [Icons.radar, Icons.hub, Icons.account_circle],
-        customInactiveIcons: [Icons.radar_outlined, Icons.hub_outlined, Icons.account_circle_outlined],
-      );
-    case AppThemeVariant.v4MinimalSoft:
-      return NavBarStyle(
-        showLabels: true,
-        iconSize: 24,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.grey[400]!,
-        backgroundColor: Colors.white,
-        indicatorType: NavIndicatorType.underline,
-      );
-    case AppThemeVariant.v5LuxuryGoldBlack:
-      return NavBarStyle(
-        showLabels: true,
-        iconSize: 22,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.grey[600]!,
-        backgroundColor: Colors.black,
-        indicatorType: NavIndicatorType.none,
-        labelStyle: const TextStyle(letterSpacing: 2, fontSize: 10),
-        useCustomLabels: true,
-        customLabels: ['DISCOVER', 'MATCHES', 'PROFILE'],
-      );
-    case AppThemeVariant.v6PlayfulPastel:
-      return NavBarStyle(
-        showLabels: true,
-        iconSize: 28,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.grey[400]!,
-        backgroundColor: Colors.white,
-        indicatorType: NavIndicatorType.pill,
-        pillColor: primary.withValues(alpha: 0.2),
-        useCustomIcons: true,
-        customActiveIcons: [Icons.favorite, Icons.chat_bubble, Icons.face],
-        customInactiveIcons: [Icons.favorite_border, Icons.chat_bubble_outline, Icons.face_outlined],
-      );
-    case AppThemeVariant.v7HighContrastRed:
-      return NavBarStyle(
-        showLabels: true,
-        iconSize: 30,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.white,
-        backgroundColor: Colors.black,
-        indicatorType: NavIndicatorType.box,
-        boxColor: primary,
-      );
-    case AppThemeVariant.v8BlueCorporate:
-      return NavBarStyle(
-        showLabels: true,
-        iconSize: 24,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.grey[500]!,
-        backgroundColor: Colors.white,
-        indicatorType: NavIndicatorType.underline,
-        elevation: 4,
-      );
-    case AppThemeVariant.v9RoundedBubbles:
-      return NavBarStyle(
-        showLabels: false,
-        iconSize: 26,
-        selectedIconColor: Colors.white,
-        unselectedIconColor: Colors.grey[500]!,
-        backgroundColor: Colors.white,
-        indicatorType: NavIndicatorType.bubble,
-        bubbleColor: primary,
-        isFloating: true,
-        borderRadius: 40,
-      );
-    case AppThemeVariant.v10CardStack3D:
-      return NavBarStyle(
-        showLabels: true,
-        iconSize: 26,
-        selectedIconColor: primary,
-        unselectedIconColor: Colors.grey[600]!,
-        backgroundColor: const Color(0xFF1A0A2E),
-        indicatorType: NavIndicatorType.glow,
-        glowColor: primary,
-      );
-  }
-}
-
-/// Get card padding for swipe cards
-EdgeInsets getCardPadding(AppThemeVariant variant) {
-  switch (variant) {
-    case AppThemeVariant.v1ClassicTinder:
-      return const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
-    case AppThemeVariant.v2ModernGlassblur:
-      return const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
-    case AppThemeVariant.v3DarkNeon:
-      return const EdgeInsets.symmetric(horizontal: 12, vertical: 6);
-    case AppThemeVariant.v4MinimalSoft:
-      return const EdgeInsets.symmetric(horizontal: 32, vertical: 24);
-    case AppThemeVariant.v5LuxuryGoldBlack:
-      return const EdgeInsets.symmetric(horizontal: 20, vertical: 12);
-    case AppThemeVariant.v6PlayfulPastel:
-      return const EdgeInsets.symmetric(horizontal: 20, vertical: 16);
-    case AppThemeVariant.v7HighContrastRed:
-      return const EdgeInsets.symmetric(horizontal: 8, vertical: 4);
-    case AppThemeVariant.v8BlueCorporate:
-      return const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
-    case AppThemeVariant.v9RoundedBubbles:
-      return const EdgeInsets.symmetric(horizontal: 28, vertical: 20);
-    case AppThemeVariant.v10CardStack3D:
-      return const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
+    default:
+      return null;
   }
 }
 
@@ -490,192 +261,50 @@ LinearGradient getButtonGradient(AppThemeVariant variant) {
   final secondary = getThemeSecondaryColor(variant);
   
   switch (variant) {
-    case AppThemeVariant.v1ClassicTinder:
-      return LinearGradient(
-        colors: [primary, const Color(0xFFFF8A80)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-    case AppThemeVariant.v2ModernGlassblur:
-      return LinearGradient(
-        colors: [primary.withValues(alpha: 0.8), secondary.withValues(alpha: 0.8)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
     case AppThemeVariant.v3DarkNeon:
       return const LinearGradient(
         colors: [Color(0xFF00FFFF), Color(0xFFFF00FF)],
-        begin: Alignment.centerLeft,
-        end: Alignment.centerRight,
-      );
-    case AppThemeVariant.v4MinimalSoft:
-      return LinearGradient(
-        colors: [primary, primary],
       );
     case AppThemeVariant.v5LuxuryGoldBlack:
       return const LinearGradient(
-        colors: [Color(0xFFD4AF37), Color(0xFFB8860B), Color(0xFFD4AF37)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
+        colors: [Color(0xFFD4AF37), Color(0xFFB8860B)],
       );
     case AppThemeVariant.v6PlayfulPastel:
       return const LinearGradient(
-        colors: [Color(0xFFFF6B9D), Color(0xFFFECA57), Color(0xFF74B9FF)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-    case AppThemeVariant.v7HighContrastRed:
-      return const LinearGradient(
-        colors: [Color(0xFFFF0000), Color(0xFFCC0000)],
-      );
-    case AppThemeVariant.v8BlueCorporate:
-      return LinearGradient(
-        colors: [primary, const Color(0xFF106EBE)],
-      );
-    case AppThemeVariant.v9RoundedBubbles:
-      return LinearGradient(
-        colors: [primary, const Color(0xFF81ECEC)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
+        colors: [Color(0xFFFF6B9D), Color(0xFFFECA57), Color(0xFF48DBFB)],
       );
     case AppThemeVariant.v10CardStack3D:
       return const LinearGradient(
         colors: [Color(0xFFA855F7), Color(0xFFEC4899), Color(0xFF6366F1)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
       );
+    default:
+      return LinearGradient(colors: [primary, secondary]);
   }
 }
 
-/// Get info texts for swipe screen
-SwipeScreenTexts getSwipeScreenTexts(AppThemeVariant variant) {
+/// Get font family suggestion
+String getFontFamily(AppThemeVariant variant) {
   switch (variant) {
     case AppThemeVariant.v1ClassicTinder:
-      return SwipeScreenTexts(
-        title: 'Discover',
-        emptyTitle: 'No more profiles',
-        emptySubtitle: 'Check back later for new people!',
-        refreshText: 'Refresh',
-        likeText: 'LIKE',
-        nopeText: 'NOPE',
-        superLikeText: 'SUPER',
-      );
+      return 'SF Pro Display';
     case AppThemeVariant.v2ModernGlassblur:
-      return SwipeScreenTexts(
-        title: 'explore',
-        emptyTitle: 'All caught up',
-        emptySubtitle: 'New connections coming soon',
-        refreshText: 'Refresh',
-        likeText: 'YES',
-        nopeText: 'PASS',
-        superLikeText: 'WOW',
-      );
+      return 'Poppins';
     case AppThemeVariant.v3DarkNeon:
-      return SwipeScreenTexts(
-        title: '> SCAN_',
-        emptyTitle: '// NO_SIGNAL',
-        emptySubtitle: 'SEARCHING FOR CONNECTIONS...',
-        refreshText: 'RESCAN',
-        likeText: 'CONNECT',
-        nopeText: 'REJECT',
-        superLikeText: 'BOOST',
-      );
+      return 'Orbitron';
     case AppThemeVariant.v4MinimalSoft:
-      return SwipeScreenTexts(
-        title: 'People',
-        emptyTitle: 'Nothing here',
-        emptySubtitle: 'Come back soon',
-        refreshText: 'Try again',
-        likeText: 'Yes',
-        nopeText: 'No',
-        superLikeText: 'Love',
-      );
+      return 'Inter';
     case AppThemeVariant.v5LuxuryGoldBlack:
-      return SwipeScreenTexts(
-        title: 'CURATED',
-        emptyTitle: 'Awaiting Selection',
-        emptySubtitle: 'Our curators are finding your match',
-        refreshText: 'REFRESH',
-        likeText: 'INTERESTED',
-        nopeText: 'DECLINE',
-        superLikeText: 'VIP',
-      );
+      return 'Playfair Display';
     case AppThemeVariant.v6PlayfulPastel:
-      return SwipeScreenTexts(
-        title: 'Find Friends! 💫',
-        emptyTitle: 'No one here yet 😢',
-        emptySubtitle: 'Come back later for more friends!',
-        refreshText: 'Try Again! 🔄',
-        likeText: 'YAY! 💕',
-        nopeText: 'NAH 👋',
-        superLikeText: 'OMG! ⭐',
-      );
+      return 'Quicksand';
     case AppThemeVariant.v7HighContrastRed:
-      return SwipeScreenTexts(
-        title: 'SWIPE!',
-        emptyTitle: 'EMPTY',
-        emptySubtitle: 'NO MORE PEOPLE',
-        refreshText: 'RELOAD',
-        likeText: 'YES!',
-        nopeText: 'NO!',
-        superLikeText: 'FIRE!',
-      );
+      return 'Impact';
     case AppThemeVariant.v8BlueCorporate:
-      return SwipeScreenTexts(
-        title: 'Connect',
-        emptyTitle: 'No connections available',
-        emptySubtitle: 'Please check back later',
-        refreshText: 'Reload',
-        likeText: 'Connect',
-        nopeText: 'Skip',
-        superLikeText: 'Priority',
-      );
+      return 'Segoe UI';
     case AppThemeVariant.v9RoundedBubbles:
-      return SwipeScreenTexts(
-        title: 'Discover ~',
-        emptyTitle: 'All done!',
-        emptySubtitle: 'More bubbles coming soon~',
-        refreshText: 'Pop more!',
-        likeText: 'Love~',
-        nopeText: 'Next~',
-        superLikeText: 'Wow!',
-      );
+      return 'Nunito';
     case AppThemeVariant.v10CardStack3D:
-      return SwipeScreenTexts(
-        title: '✦ DISCOVER',
-        emptyTitle: 'Void Empty',
-        emptySubtitle: 'Scanning the cosmos...',
-        refreshText: 'Scan Again',
-        likeText: 'MATCH',
-        nopeText: 'SKIP',
-        superLikeText: 'STAR',
-      );
-  }
-}
-
-/// Get empty state icon
-IconData getEmptyStateIcon(AppThemeVariant variant) {
-  switch (variant) {
-    case AppThemeVariant.v1ClassicTinder:
-      return Icons.search_off;
-    case AppThemeVariant.v2ModernGlassblur:
-      return Icons.blur_on;
-    case AppThemeVariant.v3DarkNeon:
-      return Icons.wifi_tethering_off;
-    case AppThemeVariant.v4MinimalSoft:
-      return Icons.inbox_outlined;
-    case AppThemeVariant.v5LuxuryGoldBlack:
-      return Icons.diamond_outlined;
-    case AppThemeVariant.v6PlayfulPastel:
-      return Icons.sentiment_dissatisfied;
-    case AppThemeVariant.v7HighContrastRed:
-      return Icons.error_outline;
-    case AppThemeVariant.v8BlueCorporate:
-      return Icons.people_outline;
-    case AppThemeVariant.v9RoundedBubbles:
-      return Icons.bubble_chart;
-    case AppThemeVariant.v10CardStack3D:
-      return Icons.auto_awesome;
+      return 'Space Grotesk';
   }
 }
 
@@ -688,7 +317,6 @@ ThemeData buildThemeForVariant(AppThemeVariant variant) {
   final isDark = isThemeDark(variant);
   final cardRadius = getCardBorderRadius(variant);
   final buttonRadius = getButtonBorderRadius(variant);
-  final appBarStyle = getAppBarStyle(variant);
   final textColor = isDark ? Colors.white : Colors.black87;
 
   return ThemeData(
@@ -708,10 +336,17 @@ ThemeData buildThemeForVariant(AppThemeVariant variant) {
             surface: surfaceColor,
           ),
     appBarTheme: AppBarTheme(
-      backgroundColor: appBarStyle.isTransparent ? Colors.transparent : backgroundColor,
-      elevation: appBarStyle.elevation,
-      centerTitle: appBarStyle.centerTitle,
-      titleTextStyle: appBarStyle.titleStyle.copyWith(color: textColor),
+      backgroundColor: backgroundColor,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: TextStyle(
+        color: textColor,
+        fontSize: variant == AppThemeVariant.v5LuxuryGoldBlack ? 24 : 20,
+        fontWeight: variant == AppThemeVariant.v7HighContrastRed 
+            ? FontWeight.w900 
+            : FontWeight.bold,
+        letterSpacing: variant == AppThemeVariant.v5LuxuryGoldBlack ? 2 : 0,
+      ),
       iconTheme: IconThemeData(color: textColor),
     ),
     cardTheme: CardThemeData(
@@ -721,9 +356,7 @@ ThemeData buildThemeForVariant(AppThemeVariant variant) {
         borderRadius: BorderRadius.circular(cardRadius),
         side: variant == AppThemeVariant.v5LuxuryGoldBlack
             ? const BorderSide(color: Color(0xFFD4AF37), width: 1)
-            : variant == AppThemeVariant.v3DarkNeon
-                ? const BorderSide(color: Color(0xFF00FFFF), width: 1)
-                : BorderSide.none,
+            : BorderSide.none,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -735,9 +368,6 @@ ThemeData buildThemeForVariant(AppThemeVariant variant) {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(buttonRadius),
-          side: variant == AppThemeVariant.v3DarkNeon
-              ? const BorderSide(color: Color(0xFF00FFFF), width: 2)
-              : BorderSide.none,
         ),
         textStyle: TextStyle(
           fontWeight: FontWeight.bold,
@@ -768,7 +398,6 @@ ThemeData buildThemeForVariant(AppThemeVariant variant) {
       selectedLabelStyle: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: variant == AppThemeVariant.v6PlayfulPastel ? 14 : 12,
-        letterSpacing: variant == AppThemeVariant.v5LuxuryGoldBlack ? 1 : 0,
       ),
     ),
     iconTheme: IconThemeData(
@@ -779,105 +408,9 @@ ThemeData buildThemeForVariant(AppThemeVariant variant) {
       foregroundColor: Colors.white,
       shape: variant == AppThemeVariant.v9RoundedBubbles
           ? const CircleBorder()
-          : variant == AppThemeVariant.v3DarkNeon || variant == AppThemeVariant.v7HighContrastRed
-              ? const RoundedRectangleBorder()
-              : RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(buttonRadius),
-                ),
-    ),
-    textTheme: TextTheme(
-      headlineLarge: TextStyle(
-        color: textColor,
-        fontWeight: variant == AppThemeVariant.v7HighContrastRed ? FontWeight.w900 : FontWeight.bold,
-        letterSpacing: variant == AppThemeVariant.v5LuxuryGoldBlack ? 2 : 0,
-      ),
-      headlineMedium: TextStyle(
-        color: textColor,
-        fontWeight: variant == AppThemeVariant.v7HighContrastRed ? FontWeight.w900 : FontWeight.bold,
-      ),
-      bodyLarge: TextStyle(color: textColor),
-      bodyMedium: TextStyle(color: textColor.withValues(alpha: 0.8)),
+          : RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(buttonRadius),
+            ),
     ),
   );
-}
-
-// Helper classes
-class AppBarStyle {
-  final bool centerTitle;
-  final double elevation;
-  final TextStyle titleStyle;
-  final bool isTransparent;
-
-  AppBarStyle({
-    this.centerTitle = true,
-    this.elevation = 0,
-    required this.titleStyle,
-    this.isTransparent = false,
-  });
-}
-
-enum NavIndicatorType { none, dot, glow, underline, pill, box, bubble }
-
-class NavBarStyle {
-  final bool showLabels;
-  final double iconSize;
-  final Color selectedIconColor;
-  final Color unselectedIconColor;
-  final Color backgroundColor;
-  final NavIndicatorType indicatorType;
-  final Color? glowColor;
-  final Color? pillColor;
-  final Color? boxColor;
-  final Color? bubbleColor;
-  final bool isFloating;
-  final double borderRadius;
-  final double elevation;
-  final TextStyle? labelStyle;
-  final bool useCustomIcons;
-  final List<IconData>? customActiveIcons;
-  final List<IconData>? customInactiveIcons;
-  final bool useCustomLabels;
-  final List<String>? customLabels;
-
-  NavBarStyle({
-    this.showLabels = true,
-    this.iconSize = 24,
-    required this.selectedIconColor,
-    required this.unselectedIconColor,
-    required this.backgroundColor,
-    this.indicatorType = NavIndicatorType.none,
-    this.glowColor,
-    this.pillColor,
-    this.boxColor,
-    this.bubbleColor,
-    this.isFloating = false,
-    this.borderRadius = 0,
-    this.elevation = 0,
-    this.labelStyle,
-    this.useCustomIcons = false,
-    this.customActiveIcons,
-    this.customInactiveIcons,
-    this.useCustomLabels = false,
-    this.customLabels,
-  });
-}
-
-class SwipeScreenTexts {
-  final String title;
-  final String emptyTitle;
-  final String emptySubtitle;
-  final String refreshText;
-  final String likeText;
-  final String nopeText;
-  final String superLikeText;
-
-  SwipeScreenTexts({
-    required this.title,
-    required this.emptyTitle,
-    required this.emptySubtitle,
-    required this.refreshText,
-    required this.likeText,
-    required this.nopeText,
-    required this.superLikeText,
-  });
 }

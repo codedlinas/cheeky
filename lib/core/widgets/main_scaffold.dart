@@ -34,404 +34,338 @@ class MainScaffold extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final variant = ref.watch(themeVariantProvider);
-    final navStyle = getNavBarStyle(variant);
     final selectedIndex = _calculateSelectedIndex(context);
-
+    
     return Scaffold(
       body: child,
-      extendBody: navStyle.isFloating,
-      bottomNavigationBar: _buildNavBar(context, variant, navStyle, selectedIndex),
+      bottomNavigationBar: _buildNavBarForVariant(context, variant, selectedIndex),
     );
   }
 
-  Widget _buildNavBar(BuildContext context, AppThemeVariant variant, NavBarStyle style, int selectedIndex) {
-    // Get icons based on style
-    final activeIcons = style.useCustomIcons && style.customActiveIcons != null
-        ? style.customActiveIcons!
-        : [Icons.local_fire_department, Icons.favorite, Icons.person];
-    final inactiveIcons = style.useCustomIcons && style.customInactiveIcons != null
-        ? style.customInactiveIcons!
-        : [Icons.local_fire_department_outlined, Icons.favorite_border, Icons.person_outline];
-    final labels = style.useCustomLabels && style.customLabels != null
-        ? style.customLabels!
-        : ['Discover', 'Matches', 'Profile'];
-
-    Widget navBar;
-
+  Widget _buildNavBarForVariant(BuildContext context, AppThemeVariant variant, int selectedIndex) {
     switch (variant) {
-      case AppThemeVariant.v2ModernGlassblur:
-        navBar = _buildGlassNavBar(context, style, selectedIndex, activeIcons, inactiveIcons, labels);
-        break;
       case AppThemeVariant.v3DarkNeon:
-        navBar = _buildNeonNavBar(context, style, selectedIndex, activeIcons, inactiveIcons, labels);
-        break;
+        return _buildCyberpunkNav(context, selectedIndex);
       case AppThemeVariant.v5LuxuryGoldBlack:
-        navBar = _buildLuxuryNavBar(context, style, selectedIndex, activeIcons, inactiveIcons, labels);
-        break;
+        return _buildLuxuryNav(context, selectedIndex);
       case AppThemeVariant.v6PlayfulPastel:
-        navBar = _buildPastelNavBar(context, style, selectedIndex, activeIcons, inactiveIcons, labels);
-        break;
+        return _buildPastelNav(context, selectedIndex);
       case AppThemeVariant.v7HighContrastRed:
-        navBar = _buildBoldNavBar(context, style, selectedIndex, activeIcons, inactiveIcons, labels);
-        break;
+        return _buildBoldNav(context, selectedIndex);
       case AppThemeVariant.v9RoundedBubbles:
-        navBar = _buildBubbleNavBar(context, style, selectedIndex, activeIcons, inactiveIcons, labels);
-        break;
+        return _buildBubbleNav(context, selectedIndex);
+      case AppThemeVariant.v10CardStack3D:
+        return _buildSpaceNav(context, selectedIndex);
+      case AppThemeVariant.v2ModernGlassblur:
+        return _buildGlassNav(context, selectedIndex);
       default:
-        navBar = _buildDefaultNavBar(context, style, selectedIndex, activeIcons, inactiveIcons, labels);
+        return _buildDefaultNav(context, selectedIndex);
     }
-
-    if (style.isFloating) {
-      return Container(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: navBar,
-      );
-    }
-
-    return navBar;
   }
 
-  Widget _buildDefaultNavBar(
-    BuildContext context,
-    NavBarStyle style,
-    int selectedIndex,
-    List<IconData> activeIcons,
-    List<IconData> inactiveIcons,
-    List<String> labels,
-  ) {
+  Widget _buildDefaultNav(BuildContext context, int selectedIndex) {
     return Container(
       decoration: BoxDecoration(
-        color: style.backgroundColor,
+        color: Theme.of(context).scaffoldBackgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
         ],
       ),
-      child: SafeArea(
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(3, (index) {
-              final isSelected = index == selectedIndex;
-              return GestureDetector(
-                onTap: () => _onItemTapped(context, index),
-                behavior: HitTestBehavior.opaque,
-                child: SizedBox(
-                  width: 80,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        isSelected ? activeIcons[index] : inactiveIcons[index],
-                        color: isSelected ? style.selectedIconColor : style.unselectedIconColor,
-                        size: style.iconSize,
-                      ),
-                      if (style.showLabels) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          labels[index],
-                          style: TextStyle(
-                            color: isSelected ? style.selectedIconColor : style.unselectedIconColor,
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              );
-            }),
+      child: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (index) => _onItemTapped(context, index),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.local_fire_department_outlined),
+            activeIcon: Icon(Icons.local_fire_department),
+            label: 'Discover',
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlassNavBar(
-    BuildContext context,
-    NavBarStyle style,
-    int selectedIndex,
-    List<IconData> activeIcons,
-    List<IconData> inactiveIcons,
-    List<String> labels,
-  ) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(style.borderRadius),
-      child: Container(
-        height: 65,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(style.borderRadius),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
-            width: 1,
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite_outline),
+            activeIcon: Icon(Icons.favorite),
+            label: 'Matches',
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(3, (index) {
-            final isSelected = index == selectedIndex;
-            return GestureDetector(
-              onTap: () => _onItemTapped(context, index),
-              behavior: HitTestBehavior.opaque,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isSelected ? activeIcons[index] : inactiveIcons[index],
-                    color: isSelected ? style.selectedIconColor : style.unselectedIconColor,
-                    size: style.iconSize,
-                  ),
-                  if (isSelected && style.indicatorType == NavIndicatorType.dot)
-                    Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: style.selectedIconColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                ],
-              ),
-            );
-          }),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildNeonNavBar(
-    BuildContext context,
-    NavBarStyle style,
-    int selectedIndex,
-    List<IconData> activeIcons,
-    List<IconData> inactiveIcons,
-    List<String> labels,
-  ) {
+  Widget _buildCyberpunkNav(BuildContext context, int selectedIndex) {
+    final items = [
+      {'icon': Icons.radar, 'label': 'DISCOVER'},
+      {'icon': Icons.hub, 'label': 'MATCHES'},
+      {'icon': Icons.fingerprint, 'label': 'PROFILE'},
+    ];
+    
     return Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        border: Border(
-          top: BorderSide(color: style.glowColor ?? style.selectedIconColor, width: 1),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(3, (index) {
-          final isSelected = index == selectedIndex;
-          final color = isSelected ? style.selectedIconColor : style.unselectedIconColor;
-          return GestureDetector(
-            onTap: () => _onItemTapped(context, index),
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    decoration: isSelected
-                        ? BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: color.withValues(alpha: 0.6),
-                                blurRadius: 15,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          )
-                        : null,
-                    child: Icon(
-                      isSelected ? activeIcons[index] : inactiveIcons[index],
-                      color: color,
-                      size: style.iconSize,
-                    ),
-                  ),
-                  if (style.showLabels) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      labels[index].toUpperCase(),
-                      style: TextStyle(
-                        color: color,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildLuxuryNavBar(
-    BuildContext context,
-    NavBarStyle style,
-    int selectedIndex,
-    List<IconData> activeIcons,
-    List<IconData> inactiveIcons,
-    List<String> labels,
-  ) {
-    const goldColor = Color(0xFFD4AF37);
-    return Container(
-      height: 70,
       decoration: const BoxDecoration(
-        color: Colors.black,
+        color: Color(0xFF0A0A0A),
         border: Border(
-          top: BorderSide(color: goldColor, width: 0.5),
+          top: BorderSide(color: Color(0xFF00FFFF), width: 1),
         ),
       ),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(3, (index) {
-          final isSelected = index == selectedIndex;
+        children: items.asMap().entries.map((entry) {
+          final isSelected = entry.key == selectedIndex;
+          final color = isSelected ? const Color(0xFF00FFFF) : const Color(0xFF666666);
+          
           return GestureDetector(
-            onTap: () => _onItemTapped(context, index),
-            behavior: HitTestBehavior.opaque,
+            onTap: () => _onItemTapped(context, entry.key),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  isSelected ? activeIcons[index] : inactiveIcons[index],
-                  color: isSelected ? goldColor : Colors.grey[600],
-                  size: style.iconSize,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: isSelected ? BoxDecoration(
+                    border: Border.all(color: const Color(0xFF00FFFF), width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00FFFF).withValues(alpha: 0.4),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ) : null,
+                  child: Icon(
+                    entry.value['icon'] as IconData,
+                    color: color,
+                    size: 24,
+                  ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
-                  labels[index].toUpperCase(),
+                  entry.value['label'] as String,
                   style: TextStyle(
-                    color: isSelected ? goldColor : Colors.grey[600],
+                    color: color,
                     fontSize: 9,
-                    fontWeight: FontWeight.w300,
-                    letterSpacing: 3,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
                   ),
                 ),
               ],
             ),
           );
-        }),
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildPastelNavBar(
-    BuildContext context,
-    NavBarStyle style,
-    int selectedIndex,
-    List<IconData> activeIcons,
-    List<IconData> inactiveIcons,
-    List<String> labels,
-  ) {
+  Widget _buildLuxuryNav(BuildContext context, int selectedIndex) {
+    final items = [
+      {'icon': Icons.diamond_outlined, 'label': 'DISCOVER'},
+      {'icon': Icons.favorite_border, 'label': 'MATCHES'},
+      {'icon': Icons.person_outline, 'label': 'PROFILE'},
+    ];
+    
     return Container(
-      height: 70,
+      color: Colors.black,
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: items.asMap().entries.map((entry) {
+          final isSelected = entry.key == selectedIndex;
+          final color = isSelected ? const Color(0xFFD4AF37) : const Color(0xFF666666);
+          
+          return GestureDetector(
+            onTap: () => _onItemTapped(context, entry.key),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isSelected 
+                      ? (entry.value['icon'] as IconData == Icons.diamond_outlined ? Icons.diamond : 
+                         entry.value['icon'] as IconData == Icons.favorite_border ? Icons.favorite :
+                         Icons.person)
+                      : entry.value['icon'] as IconData,
+                  color: color,
+                  size: 22,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  entry.value['label'] as String,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w300,
+                    letterSpacing: 3,
+                  ),
+                ),
+                if (isSelected) ...[
+                  const SizedBox(height: 4),
+                  Container(
+                    width: 20,
+                    height: 1,
+                    color: const Color(0xFFD4AF37),
+                  ),
+                ],
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildPastelNav(BuildContext context, int selectedIndex) {
+    final items = [
+      {'emoji': '🔥', 'label': 'Explore'},
+      {'emoji': '💕', 'label': 'Matches'},
+      {'emoji': '🌟', 'label': 'Me'},
+    ];
+    
+    return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.pink.withValues(alpha: 0.1),
+            color: const Color(0xFFFF6B9D).withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
         ],
       ),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(3, (index) {
-          final isSelected = index == selectedIndex;
-          final color = isSelected ? style.selectedIconColor : style.unselectedIconColor;
+        children: items.asMap().entries.map((entry) {
+          final isSelected = entry.key == selectedIndex;
+          
           return GestureDetector(
-            onTap: () => _onItemTapped(context, index),
-            behavior: HitTestBehavior.opaque,
+            onTap: () => _onItemTapped(context, entry.key),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: EdgeInsets.symmetric(
+                horizontal: isSelected ? 20 : 12,
+                vertical: 8,
+              ),
               decoration: BoxDecoration(
-                color: isSelected ? style.pillColor : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
+                color: isSelected ? const Color(0xFFFFE4EC) : Colors.transparent,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    entry.value['emoji'] as String,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  if (isSelected) ...[
+                    const SizedBox(width: 6),
+                    Text(
+                      entry.value['label'] as String,
+                      style: const TextStyle(
+                        color: Color(0xFFFF6B9D),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildBoldNav(BuildContext context, int selectedIndex) {
+    final items = ['SWIPE', 'MATCH', 'YOU'];
+    
+    return Container(
+      color: Colors.black,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: items.asMap().entries.map((entry) {
+          final isSelected = entry.key == selectedIndex;
+          
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => _onItemTapped(context, entry.key),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                color: isSelected ? Colors.red : Colors.black,
+                child: Text(
+                  entry.value,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: isSelected ? 2 : 1,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildBubbleNav(BuildContext context, int selectedIndex) {
+    final items = [
+      {'icon': Icons.explore, 'label': 'Explore'},
+      {'icon': Icons.favorite, 'label': 'Likes'},
+      {'icon': Icons.person, 'label': 'Profile'},
+    ];
+    
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00CEC9).withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: items.asMap().entries.map((entry) {
+          final isSelected = entry.key == selectedIndex;
+          
+          return GestureDetector(
+            onTap: () => _onItemTapped(context, entry.key),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                gradient: isSelected ? const LinearGradient(
+                  colors: [Color(0xFF00CEC9), Color(0xFF00B894)],
+                ) : null,
+                borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    isSelected ? activeIcons[index] : inactiveIcons[index],
-                    color: color,
-                    size: style.iconSize,
+                    entry.value['icon'] as IconData,
+                    color: isSelected ? Colors.white : const Color(0xFF636E72),
+                    size: 22,
                   ),
-                  if (isSelected && style.showLabels) ...[
+                  if (isSelected) ...[
                     const SizedBox(width: 8),
                     Text(
-                      labels[index],
-                      style: TextStyle(
-                        color: color,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        }),
-      ),
-    );
-  }
-
-  Widget _buildBoldNavBar(
-    BuildContext context,
-    NavBarStyle style,
-    int selectedIndex,
-    List<IconData> activeIcons,
-    List<IconData> inactiveIcons,
-    List<String> labels,
-  ) {
-    return Container(
-      height: 75,
-      color: Colors.black,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(3, (index) {
-          final isSelected = index == selectedIndex;
-          return GestureDetector(
-            onTap: () => _onItemTapped(context, index),
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              width: 70,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.red : Colors.transparent,
-                border: Border.all(
-                  color: isSelected ? Colors.red : Colors.white,
-                  width: 2,
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isSelected ? activeIcons[index] : inactiveIcons[index],
-                    color: isSelected ? Colors.white : Colors.white,
-                    size: style.iconSize,
-                  ),
-                  if (style.showLabels) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      labels[index].toUpperCase(),
+                      entry.value['label'] as String,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -439,69 +373,104 @@ class MainScaffold extends ConsumerWidget {
               ),
             ),
           );
-        }),
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildBubbleNavBar(
-    BuildContext context,
-    NavBarStyle style,
-    int selectedIndex,
-    List<IconData> activeIcons,
-    List<IconData> inactiveIcons,
-    List<String> labels,
-  ) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(style.borderRadius),
-      child: Container(
-        height: 65,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(style.borderRadius),
-          boxShadow: [
-            BoxShadow(
-              color: style.bubbleColor?.withValues(alpha: 0.3) ?? Colors.teal.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(3, (index) {
-            final isSelected = index == selectedIndex;
-            return GestureDetector(
-              onTap: () => _onItemTapped(context, index),
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.elasticOut,
-                width: isSelected ? 55 : 45,
-                height: isSelected ? 55 : 45,
-                decoration: BoxDecoration(
-                  color: isSelected ? style.bubbleColor : Colors.transparent,
-                  shape: BoxShape.circle,
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: style.bubbleColor?.withValues(alpha: 0.4) ?? Colors.teal.withValues(alpha: 0.4),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
-                        ]
-                      : null,
+  Widget _buildSpaceNav(BuildContext context, int selectedIndex) {
+    final items = [
+      Icons.auto_awesome,
+      Icons.favorite,
+      Icons.person,
+    ];
+    
+    return Container(
+      color: const Color(0xFF0C0015),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: items.asMap().entries.map((entry) {
+          final isSelected = entry.key == selectedIndex;
+          
+          return GestureDetector(
+            onTap: () => _onItemTapped(context, entry.key),
+            child: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: isSelected ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFA855F7), Color(0xFFEC4899)],
+                ) : null,
+                border: isSelected ? null : Border.all(
+                  color: const Color(0xFF333333),
+                  width: 1,
                 ),
-                child: Icon(
-                  isSelected ? activeIcons[index] : inactiveIcons[index],
-                  color: isSelected ? Colors.white : style.unselectedIconColor,
-                  size: isSelected ? 28 : style.iconSize,
-                ),
+                boxShadow: isSelected ? [
+                  BoxShadow(
+                    color: const Color(0xFFA855F7).withValues(alpha: 0.5),
+                    blurRadius: 15,
+                  ),
+                ] : null,
               ),
-            );
-          }),
+              child: Icon(
+                entry.value,
+                color: isSelected ? Colors.white : const Color(0xFF666666),
+                size: 24,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildGlassNav(BuildContext context, int selectedIndex) {
+    final items = [
+      Icons.local_fire_department,
+      Icons.favorite,
+      Icons.person,
+    ];
+    
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.2),
+          width: 1,
         ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: items.asMap().entries.map((entry) {
+          final isSelected = entry.key == selectedIndex;
+          
+          return GestureDetector(
+            onTap: () => _onItemTapped(context, entry.key),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isSelected 
+                    ? const Color(0xFF6366F1).withValues(alpha: 0.3)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                entry.value,
+                color: isSelected ? const Color(0xFF6366F1) : Colors.white.withValues(alpha: 0.6),
+                size: 26,
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 }
+
